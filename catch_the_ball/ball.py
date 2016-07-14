@@ -167,7 +167,7 @@ def init_main_window():
     label_score_text = tkinter.Label(root,  text="Набранные очки")
     #label_score_text.pack()
     score = tkinter.IntVar(0)
-    label = tkinter.Label(root,  text="Очки: ", textvariable=score)
+    label = tkinter.Label(root, textvariable=score)
     #label.pack()
 
     label_pkm_text = tkinter.Label(root,  text="Цвет для ПКМ")
