@@ -110,21 +110,25 @@ def init_main_window():
 
     label_lkm_text = tkinter.Label(root,  text="Цвет для ЛКМ")
     label_lkm_text.pack()
+
     cvet_fona_lkm = random_color()
     label_lkm_color = tkinter.Label(root,  text=str(cvet_fona_lkm), bg=cvet_fona_lkm)
     label_lkm_color.pack()
 
     label_score_text = tkinter.Label(root,  text="Набранные очки")
     label_score_text.pack()
+
     score = tkinter.IntVar(0)
-    label = tkinter.Label(root,  text="Очки: ", textvariable=score)
+    label = tkinter.Label(root, textvariable=score)
     label.pack()
 
     label_pkm_text = tkinter.Label(root,  text="Цвет для ПКМ")
     label_pkm_text.pack()
+
     cvet_fona_pkm = random_color()
     while cvet_fona_pkm == cvet_fona_lkm:
         cvet_fona_pkm = random_color()
+
     label_pkm_color = tkinter.Label(root,  text=str(cvet_fona_pkm), bg=cvet_fona_pkm)
     label_pkm_color.pack()
 
@@ -132,10 +136,6 @@ def init_main_window():
     canvas.bind("<Button>", click_ball)
     canvas.bind("<Motion>", move_all_balls)
     canvas.pack()
-
-
-
-
 
 
 if __name__ == "__main__":
