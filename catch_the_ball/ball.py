@@ -1,14 +1,17 @@
 import tkinter
+from tkinter import messagebox
 from random import choice, randint
+from time import sleep
 
+max_mouse_click = 30
 ball_initial_number = 20
 ball_minimal_radius = 15
 ball_maximal_radius = 40
 ball_available_colors = ['green', 'blue', 'red', 'lightgray', '#FF00FF', '#FFFF00']
-ball_max_offset_x = 10
-ball_max_offset_y = 5
+ball_max_offset_x = 5
+ball_max_offset_y = 2
 score_change_up = 1
-score_change_down = 2
+score_change_down = 1
 
 
 def start_command():
@@ -66,8 +69,13 @@ def click_ball(event):
         3) если нажата ПКМ и цвет объекта равен "цвету для ПКМ",
            то увеличиваем количество очков на 1, иначе уменьшаем на 1
     По клику мышки удаляется тот объект, на который мышка указывает.
+
+    Отслеживаем количество щелчков кнопками мыши,
+    если оно достигнет значения параметра max_mouse_click, то у нас как бы логичесое завершение игры
+    с отображением эффективности "правильных" щелчков по шарикам,
+    после чего автоматически происходит сброс настроек на начльные, и начиается новая игра
     """
-    global score, label_lkm_color, label_pkm_color
+    global score, label_lkm_color, label_pkm_color, mouse_click_count
     obj = canvas.find_closest(event.x, event.y)
     x1, y1, x2, y2 = canvas.coords(obj)
 
@@ -92,6 +100,15 @@ def click_ball(event):
         canvas.delete(obj)
 
         create_random_ball()
+    else:
+        score_down()
+
+    mouse_click_count.set(mouse_click_count.get()-1)
+    while mouse_click_count.get() == 0:
+        messagebox.showinfo("G A M E   O V E R", "Эффективность Вашей игры составила "+str(score.get()/(max_mouse_click*score_change_up)*100)+"%")
+        mouse_click_count.set(mouse_click_count.get()-1)
+        start_command()
+
 
 
 def move_all_balls(event):
@@ -132,14 +149,20 @@ def random_color():
     return choice(ball_available_colors)
 
 
+def game_timer(seconds):
+    sleep(seconds)
+
+
 def init_ball_catch_game():
     """
     Создаём необходимое для игры количество шариков, по которым нужно будет кликать
 
     для каждого шарика запоминаем смещение, учитывая параметры ball_max_offset_x и ball_max_offset_y.
     """
-    global v
+    global v, mouse_click_count
     v=[]
+
+    mouse_click_count.set(max_mouse_click)
 
     for i in range(ball_initial_number):
         vx = randint(0-ball_max_offset_x, ball_max_offset_x)
@@ -152,11 +175,9 @@ def init_ball_catch_game():
 
 
 def init_main_window():
-    global root, canvas, label, score, label_lkm_color, label_pkm_color, v
+    global root, canvas, label, score, label_lkm_color, label_pkm_color, mouse_click_count
 
     root = tkinter.Tk()
-
-    v=[]
 
     label_lkm_text = tkinter.Label(root,  text="Цвет для ЛКМ")
     #label_lkm_text.pack()
@@ -178,7 +199,12 @@ def init_main_window():
     label_pkm_color = tkinter.Label(root,  text=str(cvet_fona_pkm), bg=cvet_fona_pkm)
     #label_pkm_color.pack()
 
-    canvas = tkinter.Canvas(root, background='white', width=400, height=400)
+    label_mouse_click_text = tkinter.Label(root,  text="Щелчков в запасе")
+    #label_mouse_click_text.pack()
+    mouse_click_count = tkinter.IntVar(0)
+    label_mouse_click = tkinter.Label(root, textvariable=mouse_click_count)
+
+    canvas = tkinter.Canvas(root, background='white', width=550, height=550)
     canvas.bind("<Button>", click_ball)
     canvas.bind("<Motion>", move_all_balls)
     #canvas.pack()
@@ -192,8 +218,10 @@ def init_main_window():
     label_pkm_color.grid(row=1, column=1)
     label_score_text.grid(row=0, column=2)
     label.grid(row=1, column=2)
-    button1.grid(row=0, column=3, rowspan=2)
-    canvas.grid(row=2, column=0, columnspan=4)
+    label_mouse_click_text.grid(row=0, column=3)
+    label_mouse_click.grid(row=1, column=3)
+    button1.grid(row=0, column=4, rowspan=2)
+    canvas.grid(row=2, column=0, columnspan=5)
 
 
 
