@@ -1,17 +1,18 @@
 import tkinter
 from tkinter import messagebox
 from random import choice, randint
-from time import sleep
 
 max_mouse_click = 30
-ball_initial_number = 20
+ball_initial_number = 25
 ball_minimal_radius = 15
-ball_maximal_radius = 40
+ball_maximal_radius = 80
 ball_available_colors = ['green', 'blue', 'red', 'lightgray', '#FF00FF', '#FFFF00']
-ball_max_offset_x = 5
-ball_max_offset_y = 2
+ball_max_offset_x = 9
+ball_max_offset_y = 4
 score_change_up = 1
 score_change_down = 1
+canvas_height = 550
+canvas_width = 550
 
 
 def start_command():
@@ -76,6 +77,7 @@ def click_ball(event):
     после чего автоматически происходит сброс настроек на начльные, и начиается новая игра
     """
     global score, label_lkm_color, label_pkm_color, mouse_click_count
+
     obj = canvas.find_closest(event.x, event.y)
     x1, y1, x2, y2 = canvas.coords(obj)
 
@@ -120,14 +122,12 @@ def move_all_balls(event):
     #    canvas.move(obj, dx, dy)
     k = 0
     for obj in canvas.find_all():
-        h = int(canvas['height'])
-        w = int(canvas['width'])
         x1, y1, x2, y2 = canvas.coords(obj)
-        if x1<3 or x2>w-3:
-            v[k][0]=-v[k][0]
-        if y1 < 3 or y2>h-3:
-            v[k][1] = -v[k][1]
-        canvas.move(obj, v[k][0],v[k][1])
+        if x1<3 or x2>canvas_width-3:
+            ball_coords_offset[k][0]=-ball_coords_offset[k][0]
+        if y1 < 3 or y2>canvas_height-3:
+            ball_coords_offset[k][1] = -ball_coords_offset[k][1]
+        canvas.move(obj, ball_coords_offset[k][0],ball_coords_offset[k][1])
         k+=1
 
 
@@ -137,8 +137,8 @@ def create_random_ball():
      при этом шарик не выходит за границы холста!
     """
     R = randint(ball_minimal_radius, ball_maximal_radius)
-    x = randint(0, int(canvas['width'])-1-2*R)
-    y = randint(0, int(canvas['height'])-1-2*R)
+    x = randint(0, canvas_width-1-2*R)
+    y = randint(0, canvas_height-1-2*R)
     canvas.create_oval(x, y, x+2*R, y+2*R, width=1, fill=random_color())
 
 
@@ -149,18 +149,15 @@ def random_color():
     return choice(ball_available_colors)
 
 
-def game_timer(seconds):
-    sleep(seconds)
-
-
 def init_ball_catch_game():
     """
     Создаём необходимое для игры количество шариков, по которым нужно будет кликать
 
     для каждого шарика запоминаем смещение, учитывая параметры ball_max_offset_x и ball_max_offset_y.
     """
-    global v, mouse_click_count
-    v=[]
+    global ball_coords_offset, mouse_click_count
+
+    ball_coords_offset=[]
 
     mouse_click_count.set(max_mouse_click)
 
@@ -170,14 +167,15 @@ def init_ball_catch_game():
         while vx==0 and vy==0:
             vx = randint(0-ball_max_offset_x, ball_max_offset_x)
             vy = randint(0-ball_max_offset_y, ball_max_offset_y)
-        v.append([vx, vy])
+        ball_coords_offset.append([vx, vy])
         create_random_ball()
 
 
 def init_main_window():
-    global root, canvas, label, score, label_lkm_color, label_pkm_color, mouse_click_count
+    global root, canvas, label, score, label_lkm_color, label_pkm_color, mouse_click_count, canvas_width, canvas_height
 
     root = tkinter.Tk()
+    root.resizable(False, False)
 
     label_lkm_text = tkinter.Label(root,  text="Цвет для ЛКМ")
     #label_lkm_text.pack()
@@ -204,7 +202,13 @@ def init_main_window():
     mouse_click_count = tkinter.IntVar(0)
     label_mouse_click = tkinter.Label(root, textvariable=mouse_click_count)
 
-    canvas = tkinter.Canvas(root, background='white', width=550, height=550)
+    #проверка минимального размера (высоты и ширины) холста с учетом максимального радиуса шарика
+    if canvas_width < 2*ball_maximal_radius+1:
+        canvas_width = 2*ball_maximal_radius+1
+    if canvas_height < 2*ball_maximal_radius+1:
+        canvas_height = 2*ball_maximal_radius+1
+
+    canvas = tkinter.Canvas(root, background='white', width=canvas_width, height=canvas_height)
     canvas.bind("<Button>", click_ball)
     canvas.bind("<Motion>", move_all_balls)
     #canvas.pack()
