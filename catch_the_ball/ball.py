@@ -13,6 +13,7 @@ score_change_up = 1
 score_change_down = 1
 canvas_height = 550
 canvas_width = 550
+timer_delay = 50
 
 
 def start_command():
@@ -155,7 +156,7 @@ def init_ball_catch_game():
 
     для каждого шарика запоминаем смещение, учитывая параметры ball_max_offset_x и ball_max_offset_y.
     """
-    global ball_coords_offset, mouse_click_count
+    global ball_coords_offset, mouse_click_count, move_all_balls
 
     ball_coords_offset=[]
 
@@ -210,7 +211,7 @@ def init_main_window():
 
     canvas = tkinter.Canvas(root, background='white', width=canvas_width, height=canvas_height)
     canvas.bind("<Button>", click_ball)
-    canvas.bind("<Motion>", move_all_balls)
+    #canvas.bind("<Motion>", move_all_balls)
     #canvas.pack()
 
     button1 = tkinter.Button(root, text="Новая игра", command=start_command)
@@ -228,9 +229,15 @@ def init_main_window():
     canvas.grid(row=2, column=0, columnspan=5)
 
 
+def timer_event():
+    # все периодические рассчёты, которые я хочу, делаю здесь
+    move_all_balls(None)
+    canvas.after(timer_delay, timer_event)
+
 
 if __name__ == "__main__":
     init_main_window()
     init_ball_catch_game()
+    timer_event()
     root.mainloop()
 print("Приходите поиграть ещё!")
