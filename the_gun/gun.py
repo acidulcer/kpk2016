@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from random import choice, randint
 from math import atan2, sin, cos, pi
 
@@ -142,17 +143,18 @@ def start_command():
     настройки игры сбрасываются по умолчанию для начала новой игры
     :return:
     """
-    global scores_value, shells_count
+    global scores_value, shells_count, game_time_value
 
     scores_value.set(0)
     shells_count.set(20)
+    game_time_value.set(0)
     canvas.delete("all")
 
     init_game()
 
 
 def init_main_window():
-    global root, canvas, scores_value, shells_count, screen_width, screen_height
+    global root, canvas, scores_value, shells_count, screen_width, screen_height, game_time_value
     root = Tk()
     root.resizable(False, False)
 
@@ -164,6 +166,10 @@ def init_main_window():
     label_shells_text = Label(root,  text="Осталось снарядов")
     shells_count = IntVar(0)
     label_shells_count = Label(root, textvariable=shells_count)
+    label_time_text = Label(root,  text="Затрачено ТИКОВ")
+    game_time_value = IntVar(0)
+    label_game_time_value = Label(root, textvariable=game_time_value)
+
 
     #проверка минимального размера (высоты и ширины) холста с учетом максимального радиуса шарика
     if screen_width < 2*ball_maximal_radius+1:
@@ -185,6 +191,8 @@ def init_main_window():
     label_scores_value.grid(row=1, column=0)
     label_shells_text.grid(row=0, column=1)
     label_shells_count.grid(row=1, column=1)
+    label_time_text.grid(row=0, column=3)
+    label_game_time_value.grid(row=1, column=3)
 
     canvas.bind('<Button-1>', click_event_handler)
     canvas.bind('<Motion>', move_event_handler)
@@ -212,6 +220,11 @@ def timer_event():
                     shells_on_fly.remove(shell)
                     scores_up()
 
+    if len(balls) == 0:
+        messagebox.showinfo("G A M E   O V E R", "Эффективность Вашей игры составила "+str(game_time_value.get())+" ТИКОВ")
+        start_command()
+    else:
+        game_time_value.set(game_time_value.get()+timer_delay)
     canvas.after(timer_delay, timer_event)
 
 
